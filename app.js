@@ -1,7 +1,14 @@
 'use strict';
 
 var express = require('express'),
-	Bundle = require('./lib/bundle');
+	Bundle = require('./lib/bundle'),
+	config = require('./lib/config'),
+	argv = require('optimist').argv;
+
+if (!config.load(__dirname + '/config.json')){
+	console.log('Failed to load config file');
+	process.exit(1);
+}
 
 var app = express()
 	.use(express.bodyParser())
@@ -36,7 +43,8 @@ app.post('/bundles', function(req, res){
 	}
 });
 
-app.listen(4002, function(){
-	console.log('Listening on port 4002');
+var port = parseInt(argv.p, 10) || config.port || 3002;
+app.listen(port, function(){
+	console.log('Listening on port %d', port);
 });
 
