@@ -43,6 +43,17 @@ app.post('/bundles', function(req, res){
 	}
 });
 
+app.get(/^\/bundles\/([A-Za-z0-9]{5})(?:\/([0-9]+))?$/, function(req, res){
+	var hash = req.params[0],
+		revision = parseInt(req.params[1], 10) || 0;
+	Bundle.find(hash, revision, function(err, bundle){
+		if (err){
+			res.json(404, {});
+		}
+		res.json(bundle);
+	});
+});
+
 var port = parseInt(argv.p, 10) || config.port || 3002;
 app.listen(port, function(){
 	console.log('Listening on port %d', port);
