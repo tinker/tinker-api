@@ -19,12 +19,18 @@ var app = express()
 		next();
 	});
 
-app.post('/bundles', function(req, res){
-	var data = req.body || {};
+app.post(/^\/bundles(?:\/([A-Za-z0-9]{5}))?/, function(req, res){
+	var hash = req.params[0],
+		data = req.body || {};
 
 	if (req.get('content-type') !== 'application/json'){
 		res.json(403, {error: 'Invalid content type, only accepting application/json'});
 		return;
+	}
+
+	if (hash){
+		data.meta = data.meta || {};
+		data.meta.hash = hash;
 	}
 
 	try {
@@ -34,7 +40,7 @@ app.post('/bundles', function(req, res){
 				res.json(403, {error: err.message});
 			} else {
 				delete doc._id;
-				res.set('Location', 'https://api.tinker.io/bundles/' + doc.meta.hash);
+				res.set('Location', 'https://api.tinker.io/bundles/' + doc.meta.hash + '/' + doc.meta.revision);
 				res.json(201, doc);
 			}
 		});
